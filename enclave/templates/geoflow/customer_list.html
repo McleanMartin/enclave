@@ -1,0 +1,76 @@
+{% extends "geoflow/geoflow_base.html" %}
+{% load i18n %}
+
+{% block title %}Customers — GeoFlow{% endblock title %}
+
+{% block geoflow_content %}
+  <div class="py-8 px-4 sm:px-6 lg:px-8">
+    <div class="flex items-center justify-between mb-6">
+      <div>
+        <h1 class="text-2xl font-semibold text-gray-900">Customers</h1>
+        <p class="text-sm text-gray-600">List of customers and quick actions.</p>
+      </div>
+      <div>
+        <a href="{% url 'geoflow:customer_create' %}" class="inline-flex items-center px-4 py-2 bg-tealbrand text-white rounded-md shadow hover:bg-teal-600">New Customer</a>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div class="lg:col-span-2">
+        <div class="bg-white shadow rounded-lg overflow-hidden">
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+              <tr>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">City</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Products</th>
+                <th class="px-6 py-3"></th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+              <tr>
+                <td class="px-6 py-4 whitespace-nowrap">Example Customer</td>
+                <td class="px-6 py-4 whitespace-nowrap">Harare</td>
+                <td class="px-6 py-4 whitespace-nowrap">Product A, Product B</td>
+                <td class="px-6 py-4 whitespace-nowrap text-right"><a href="#" class="text-tealbrand hover:underline">View</a></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="bg-white shadow rounded-lg overflow-hidden">
+        <div id="listMap" class="w-full h-80 bg-gray-100"></div>
+      </div>
+    </div>
+  </div>
+
+  {% block inline_javascript %}
+    <script src="https://js.arcgis.com/4.26/"></script>
+    <script>
+      (async function () {
+        try {
+          const [Map, MapView, Graphic, GraphicsLayer] = await Promise.all([
+            require('esri/Map'),
+            require('esri/views/MapView'),
+            require('esri/Graphic'),
+            require('esri/layers/GraphicsLayer')
+          ]);
+          const map = new Map({ basemap: 'streets-vector' });
+          const view = new MapView({ container: 'listMap', map: map, center: [31.0, -17.8], zoom: 6 });
+          const gl = new GraphicsLayer(); map.add(gl);
+          try {
+            const res = await fetch('/api/customers/?page_size=1000');
+            const json = await res.json();
+            const items = Array.isArray(json.results) ? json.results : json;
+            items.forEach(c => {
+              if (c.latitude && c.longitude) {
+                const point = { type: 'point', longitude: parseFloat(c.longitude), latitude: parseFloat(c.latitude) };
+                gl.add(new Graphic({ geometry: point, symbol: { type: 'simple-marker', color: '#0d9488' } }));
+              }
+            });
+          } catch (err) { console.warn('Failed to load customers for list map', err); }
+        } catch (err) { console.warn('ArcGIS modules failed to load', err); }
+      })();
+    </script>
+  {% endblock inline_javascript %}
+{% endblock geoflow_content %}

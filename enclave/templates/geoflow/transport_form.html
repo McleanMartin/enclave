@@ -1,0 +1,26 @@
+{% extends "geoflow/geoflow_base.html" %}
+{% load i18n %}
+
+{% block title %}Log Transport — GeoFlow{% endblock title %}
+
+{% block geoflow_content %}
+  <div class="py-8 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-3xl bg-white shadow rounded-lg p-6">
+      <h1 class="text-xl font-semibold text-gray-900 mb-4">Log Transport Activity</h1>
+      <form method="post" action="#">
+        {% csrf_token %}
+        <div class="grid grid-cols-1 gap-4">
+          <input name="vehicle_identifier" placeholder="Vehicle ID" class="w-full rounded-md border-gray-300 p-2" />
+          <textarea name="route" placeholder="Route (GeoJSON or list)" class="w-full rounded-md border-gray-300 p-2 h-28"></textarea>
+          <div class="flex gap-2">
+            <input name="distance_km" placeholder="Distance (km)" class="flex-1 rounded-md border-gray-300 p-2" />
+            <input name="duration_minutes" placeholder="Duration (min)" class="flex-1 rounded-md border-gray-300 p-2" />
+          </div>
+          <div class="flex justify-end">
+            <button type="submit" class="px-4 py-2 bg-tealbrand text-white rounded-md">Log Activity</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+{% endblock geoflow_content %}

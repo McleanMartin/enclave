@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}Sign In — GeoFlow{% endblock title %}
+
+{% block bodyclass %}bg-gray-50{% endblock bodyclass %}
+
+{% block main %}
+  <div class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-md w-full space-y-8">
+      <div class="text-center">
+        <h2 class="mt-6 text-3xl font-extrabold text-tealbrand">Welcome to GeoFlow</h2>
+        <p class="mt-2 text-sm text-gray-600">Sign in to access maps and transport analytics</p>
+      </div>
+      <div class="bg-white shadow rounded-lg p-8">
+        <form method="post" action="{% url 'account_login' %}">
+          {% csrf_token %}
+          <div class="mb-4">
+            <label for="id_login" class="block text-sm font-medium text-gray-700">Email</label>
+            <input name="login" id="id_login" type="email" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-tealbrand focus:ring-tealbrand">
+          </div>
+          <div class="mb-4">
+            <label for="id_password" class="block text-sm font-medium text-gray-700">Password</label>
+            <input name="password" id="id_password" type="password" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-tealbrand focus:ring-tealbrand">
+          </div>
+          <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center">
+              <input id="remember" name="remember" type="checkbox" class="h-4 w-4 text-tealbrand focus:ring-tealbrand border-gray-300 rounded">
+              <label for="remember" class="ml-2 block text-sm text-gray-900">Remember me</label>
+            </div>
+            <div class="text-sm">
+              <a href="{% url 'account_reset_password' %}" class="font-medium text-tealbrand hover:underline">Forgot your password?</a>
+            </div>
+          </div>
+          <div>
+            <button type="submit" class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-tealbrand hover:bg-teal-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-tealbrand">
+              Sign in
+            </button>
+          </div>
+        </form>
+      </div>
+      <p class="mt-2 text-center text-sm text-gray-600">New here? <a href="{% url 'account_signup' %}" class="text-tealbrand font-medium">Create an account</a></p>
+    </div>
+  </div>
+{% endblock main %}

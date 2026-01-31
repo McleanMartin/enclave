@@ -1,0 +1,92 @@
+{% extends "geoflow/geoflow_base.html" %}
+{% load i18n %}
+
+{% block title %}Dashboard — GeoFlow{% endblock title %}
+
+{% block geoflow_content %}
+  <div class="py-8 px-4 sm:px-6 lg:px-8">
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+      <div class="bg-white rounded-lg shadow p-6">
+        <h3 class="text-gray-500 text-sm font-medium">Total Customers</h3>
+        <p class="text-3xl font-bold text-tealbrand mt-2">—</p>
+      </div>
+      <div class="bg-white rounded-lg shadow p-6">
+        <h3 class="text-gray-500 text-sm font-medium">Total Products</h3>
+        <p class="text-3xl font-bold text-tealbrand mt-2">—</p>
+      </div>
+      <div class="bg-white rounded-lg shadow p-6">
+        <h3 class="text-gray-500 text-sm font-medium">Recent Activities</h3>
+        <p class="text-3xl font-bold text-tealbrand mt-2">—</p>
+      </div>
+      <div class="bg-white rounded-lg shadow p-6">
+        <h3 class="text-gray-500 text-sm font-medium">Geocoded</h3>
+        <p class="text-3xl font-bold text-tealbrand mt-2">—</p>
+      </div>
+    </div>
+    <div class="bg-white rounded-lg shadow p-6">
+      <h2 class="text-lg font-semibold text-gray-900">Quick Stats</h2>
+      <p class="text-sm text-gray-600 mt-2">Overview of platform usage and data quality.</p>
+      <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <h3 class="font-medium text-gray-900">Service Coverage</h3>
+          <p class="text-sm text-gray-600 mt-1">Percentage of customers in service area</p>
+          <div class="mt-2 bg-gray-200 rounded-full h-2 w-full"><div class="bg-tealbrand h-2 rounded-full" style="width: 75%;"></div></div>
+        </div>
+        <div>
+          <h3 class="font-medium text-gray-900">Data Completeness</h3>
+          <p class="text-sm text-gray-600 mt-1">Percentage of addresses geocoded</p>
+          <div class="mt-2 bg-gray-200 rounded-full h-2 w-full"><div class="bg-tealbrand h-2 rounded-full" style="width: 85%;"></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock geoflow_content %}
+
+{% block inline_javascript %}
+  <script src="https://js.arcgis.com/4.26/"></script>
+  <script>
+    (async function () {
+      try {
+        const [Map, MapView, Graphic, GraphicsLayer, FeatureLayer] = await Promise.all([
+          require('esri/Map'),
+          require('esri/views/MapView'),
+          require('esri/Graphic'),
+          require('esri/layers/GraphicsLayer'),
+          require('esri/layers/FeatureLayer')
+        ]);
+
+        const map = new Map({ basemap: 'streets-vector' });
+        const view = new MapView({ container: 'mainMap', map: map, center: [31.0, -17.8], zoom: 6 });
+
+        const gl = new GraphicsLayer();
+        map.add(gl);
+
+        // Fetch customers from API and render points
+        try {
+          const res = await fetch('/api/customers/?page_size=1000');
+          const json = await res.json();
+          const items = Array.isArray(json.results) ? json.results : json;
+          items.forEach(c => {
+            if (c.latitude && c.longitude) {
+              const point = {
+                type: 'point',
+                longitude: parseFloat(c.longitude),
+                latitude: parseFloat(c.latitude)
+              };
+              const marker = new Graphic({
+                geometry: point,
+                symbol: { type: 'simple-marker', color: '#0d9488', outline: { color: 'white', width: 1 } },
+                attributes: { name: c.name }
+              });
+              gl.add(marker);
+            }
+          });
+        } catch (err) {
+          console.warn('Failed to load customers for map', err);
+        }
+      } catch (err) {
+        console.warn('ArcGIS modules failed to load', err);
+      }
+    })();
+  </script>
+{% endblock inline_javascript %}

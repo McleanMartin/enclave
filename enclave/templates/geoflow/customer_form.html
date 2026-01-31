@@ -1,0 +1,31 @@
+{% extends "geoflow/geoflow_base.html" %}
+{% load i18n %}
+
+{% block title %}New Customer — GeoFlow{% endblock title %}
+
+{% block geoflow_content %}
+  <div class="py-8 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-3xl bg-white shadow rounded-lg p-6">
+      <h1 class="text-xl font-semibold text-gray-900 mb-4">Add Customer</h1>
+      <form method="post" action="#">
+        {% csrf_token %}
+        <div class="grid grid-cols-1 gap-4">
+          <input name="name" placeholder="Customer name" class="w-full rounded-md border-gray-300 p-2" />
+          <input name="address_line1" placeholder="Address line 1" class="w-full rounded-md border-gray-300 p-2" />
+          <input name="city" placeholder="City" class="w-full rounded-md border-gray-300 p-2" />
+          <div class="flex gap-2">
+            <input name="postal_code" placeholder="Postal code" class="flex-1 rounded-md border-gray-300 p-2" />
+            <input name="country" placeholder="Country" class="flex-1 rounded-md border-gray-300 p-2" />
+          </div>
+          <div class="flex gap-2">
+            <input name="latitude" placeholder="Latitude" class="flex-1 rounded-md border-gray-300 p-2" />
+            <input name="longitude" placeholder="Longitude" class="flex-1 rounded-md border-gray-300 p-2" />
+          </div>
+          <div class="flex justify-end">
+            <button type="submit" class="px-4 py-2 bg-tealbrand text-white rounded-md">Create</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+{% endblock geoflow_content %}

@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block main %}
+  <div class="flex h-screen bg-gray-50">
+    <!-- Sidebar -->
+    <div class="w-64 bg-tealbrand text-white shadow-lg">
+      <div class="p-6">
+        <h2 class="text-xl font-semibold">GeoFlow</h2>
+        <p class="text-sm opacity-75">Spatial Intelligence</p>
+      </div>
+      <nav class="mt-8">
+        <a href="{% url 'geoflow:dashboard' %}" class="{% if request.resolver_match.url_name == 'dashboard' %}bg-teal-700{% endif %} block px-6 py-3 hover:bg-teal-600">Dashboard</a>
+        <a href="{% url 'geoflow:maps' %}" class="{% if request.resolver_match.url_name == 'maps' %}bg-teal-700{% endif %} block px-6 py-3 hover:bg-teal-600">Maps</a>
+        <a href="{% url 'geoflow:customers' %}" class="{% if request.resolver_match.url_name == 'customers' %}bg-teal-700{% endif %} block px-6 py-3 hover:bg-teal-600">Customers</a>
+        <a href="{% url 'geoflow:products' %}" class="{% if request.resolver_match.url_name == 'products' %}bg-teal-700{% endif %} block px-6 py-3 hover:bg-teal-600">Products</a>
+        <a href="{% url 'geoflow:transport_create' %}" class="{% if request.resolver_match.url_name == 'transport_create' %}bg-teal-700{% endif %} block px-6 py-3 hover:bg-teal-600">Log Activity</a>
+      </nav>
+    </div>
+
+    <!-- Main Content -->
+    <div class="flex-1 overflow-auto">
+      {% block geoflow_content %}{% endblock geoflow_content %}
+    </div>
+  </div>
+{% endblock main %}

@@ -1,0 +1,68 @@
+{% extends "geoflow/geoflow_base.html" %}
+{% load i18n %}
+
+{% block title %}Maps — GeoFlow{% endblock title %}
+
+{% block geoflow_content %}
+  <div class="py-8 px-4 sm:px-6 lg:px-8">
+    <div class="bg-white rounded-lg shadow overflow-hidden">
+      <div class="px-6 py-4 bg-tealbrand text-white">
+        <h1 class="text-2xl font-semibold">Interactive Maps</h1>
+        <p class="text-sm opacity-90">Customer density, transport routes and overlays</p>
+      </div>
+      <div class="p-6">
+        <h2 class="text-lg font-medium text-gray-900 mb-2">Customer & Transport Overview</h2>
+        <p class="text-sm text-gray-600 mb-4">Zoom, pan, and click markers for details</p>
+        <div id="mainMap" class="w-full h-screen rounded-lg shadow-sm"></div>
+      </div>
+    </div>
+  </div>
+
+{% block inline_javascript %}
+  <script src="https://js.arcgis.com/4.26/"></script>
+  <script>
+    (async function () {
+      try {
+        const [Map, MapView, Graphic, GraphicsLayer] = await Promise.all([
+          require('esri/Map'),
+          require('esri/views/MapView'),
+          require('esri/Graphic'),
+          require('esri/layers/GraphicsLayer')
+        ]);
+
+        const map = new Map({ basemap: 'streets-vector' });
+        const view = new MapView({ container: 'mainMap', map: map, center: [31.0, -17.8], zoom: 6 });
+
+        const gl = new GraphicsLayer();
+        map.add(gl);
+
+        // Fetch customers from API and render points
+        try {
+          const res = await fetch('/api/customers/?page_size=1000');
+          const json = await res.json();
+          const items = Array.isArray(json.results) ? json.results : json;
+          items.forEach(c => {
+            if (c.latitude && c.longitude) {
+              const point = {
+                type: 'point',
+                longitude: parseFloat(c.longitude),
+                latitude: parseFloat(c.latitude)
+              };
+              const marker = new Graphic({
+                geometry: point,
+                symbol: { type: 'simple-marker', color: '#0d9488', outline: { color: 'white', width: 1 } },
+                attributes: { name: c.name }
+              });
+              gl.add(marker);
+            }
+          });
+        } catch (err) {
+          console.warn('Failed to load customers for map', err);
+        }
+      } catch (err) {
+        console.warn('ArcGIS modules failed to load', err);
+      }
+    })();
+  </script>
+{% endblock inline_javascript %}
+{% endblock geoflow_content %}

@@ -22,7 +22,7 @@ urlpatterns = [
     path("users/", include("enclave.users.urls", namespace="users")),
     path("accounts/", include("allauth.urls")),
     # Your stuff: custom urls includes go here
-    # ...
+    path("geoflow/", include("enclave.geoflow.urls", namespace="geoflow")),
     # Media files
     *static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT),
 ]

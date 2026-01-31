@@ -1,0 +1,62 @@
+{% extends "geoflow/geoflow_base.html" %}
+{% load i18n %}
+
+{% block title %}Customer — GeoFlow{% endblock title %}
+
+{% block geoflow_content %}
+  <div class="py-8 px-4 sm:px-6 lg:px-8">
+    <div class="bg-white shadow rounded-lg p-6">
+      <div class="flex items-start justify-between">
+        <div>
+          <h1 class="text-2xl font-semibold">Example Customer</h1>
+          <p class="text-sm text-gray-600">Harare, Zimbabwe</p>
+        </div>
+        <div>
+          <a href="#" class="px-3 py-1 bg-tealbrand text-white rounded">Edit</a>
+        </div>
+      </div>
+      <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <h2 class="font-medium text-gray-900">Products</h2>
+          <p class="text-sm text-gray-600">Product A, Product B</p>
+        </div>
+        <div>
+          <h2 class="font-medium text-gray-900">Transport</h2>
+          <p class="text-sm text-gray-600">Uses transport: Yes</p>
+        </div>
+      </div>
+      <div id="detailMap" data-pk="{{ pk }}" class="mt-6 h-64 bg-gray-100 rounded"></div>
+    </div>
+  </div>
+{% endblock geoflow_content %}
+
+{% block inline_javascript %}
+  <script src="https://js.arcgis.com/4.26/"></script>
+  <script>
+    (async function () {
+      try {
+        const [Map, MapView, Graphic, GraphicsLayer] = await Promise.all([
+          require('esri/Map'),
+          require('esri/views/MapView'),
+          require('esri/Graphic'),
+          require('esri/layers/GraphicsLayer')
+        ]);
+        const pk = document.getElementById('detailMap').dataset.pk;
+        const map = new Map({ basemap: 'streets-vector' });
+        const view = new MapView({ container: 'detailMap', map: map, center: [31.0, -17.8], zoom: 6 });
+        const gl = new GraphicsLayer(); map.add(gl);
+        try {
+          const res = await fetch(`/api/customers/${pk}/`);
+          if (!res.ok) throw new Error('fetch failed');
+          const c = await res.json();
+          if (c.latitude && c.longitude) {
+            const point = { type: 'point', longitude: parseFloat(c.longitude), latitude: parseFloat(c.latitude) };
+            gl.add(new Graphic({ geometry: point, symbol: { type: 'simple-marker', color: '#0d9488', outline: { color: 'white', width: 1 } } }));
+            view.center = [parseFloat(c.longitude), parseFloat(c.latitude)];
++            view.zoom = 13;
+          }
+        } catch (err) { console.warn('Failed to load customer for detail map', err); }
+      } catch (err) { console.warn('ArcGIS modules failed to load', err); }
+    })();
+  </script>
+{% endblock inline_javascript %}

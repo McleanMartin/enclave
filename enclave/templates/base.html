@@ -25,7 +25,19 @@
           referrerpolicy="no-referrer" />
 <!-- Your stuff: Third-party CSS libraries go here -->
 <!-- This file stores project-specific CSS -->
-
+<!-- Tailwind (Play CDN) - provides utility classes used by geoflow pages -->
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          tealbrand: '#0d9488'
+        }
+      }
+    }
+  }
+</script>
 
 {% compress css %}
   <link href="{% static 'css/project.css' %}" rel="stylesheet" />
